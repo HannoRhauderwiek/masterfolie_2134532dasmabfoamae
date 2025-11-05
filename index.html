@@ -11,6 +11,30 @@
             box-sizing: border-box;
         }
 
+        /* Smooth scrolling für Slides */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Benutzerdefinierte Scrollbar für Slides */
+        .slide::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .slide::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .slide::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+
+        .slide::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -25,6 +49,7 @@
             width: 90vw;
             max-width: 1600px;
             height: 90vh;
+            min-height: 600px;
             max-height: 900px;
             background: white;
             border-radius: 20px;
@@ -36,15 +61,17 @@
         .slide {
             width: 100%;
             height: 100%;
-            padding: 60px 80px;
+            padding: 40px 60px;
             display: none;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             opacity: 0;
             transition: opacity 0.5s ease-in-out;
             position: absolute;
             top: 0;
             left: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .slide.active {
@@ -208,7 +235,7 @@
         }
 
         .reveal-card.open .reveal-content {
-            max-height: 500px;
+            max-height: 2000px;
             margin-top: 15px;
         }
 
@@ -459,10 +486,11 @@
 
         /* Content area */
         .content-area {
-            flex: 1;
+            flex: 1 1 auto;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            min-height: min-content;
         }
 
         /* Three columns layout */
@@ -471,6 +499,121 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 30px;
             margin-top: 30px;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 1200px) {
+            .slide {
+                padding: 30px 40px;
+            }
+
+            h1 {
+                font-size: 2.8em;
+            }
+
+            h2 {
+                font-size: 2em;
+            }
+
+            .three-columns {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .image-square {
+                width: 280px;
+                height: 280px;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .presentation-container {
+                width: 95vw;
+                height: 95vh;
+            }
+
+            .slide {
+                padding: 20px 30px;
+            }
+
+            h1 {
+                font-size: 2.2em;
+            }
+
+            h2 {
+                font-size: 1.6em;
+            }
+
+            h3 {
+                font-size: 1.4em;
+            }
+
+            p {
+                font-size: 1.1em;
+            }
+
+            .two-columns {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .three-columns {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hover-card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .image-hero {
+                max-height: 250px;
+            }
+
+            .image-portrait {
+                width: 200px;
+                height: 250px;
+            }
+
+            .image-square {
+                width: 200px;
+                height: 200px;
+            }
+
+            .nav-button {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2em;
+            }
+
+            .nav-button.prev {
+                left: 10px;
+            }
+
+            .nav-button.next {
+                right: 10px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .slide {
+                padding: 15px 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.4em;
+            }
+
+            .modal-content {
+                padding: 25px;
+                max-width: 90vw;
+            }
         }
     </style>
 </head>
