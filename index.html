@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KI im Marketing - Interaktive Präsentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .presentation-container {
+            width: 90vw;
+            max-width: 1600px;
+            height: 90vh;
+            max-height: 900px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            padding: 60px 80px;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 1.8em;
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 1.3em;
+            color: #4a5568;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            font-size: 1.5em;
+            color: #718096;
+            font-weight: 300;
+        }
+
+        /* Navigation */
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-button:hover {
+            background: rgba(102, 126, 234, 1);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-button.prev {
+            left: 20px;
+        }
+
+        .nav-button.next {
+            right: 20px;
+        }
+
+        /* Slide Counter */
+        .slide-counter {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 0.9em;
+            color: #a0aec0;
+            z-index: 100;
+        }
+
+        /* Image Styles - Flexible Formats */
+        .slide-image {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            object-fit: cover;
+        }
+
+        .image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+        }
+
+        .image-hero {
+            max-width: 100%;
+            max-height: 400px;
+        }
+
+        .image-portrait {
+            width: 300px;
+            height: 375px;
+        }
+
+        .image-square {
+            width: 350px;
+            height: 350px;
+        }
+
+        /* Two Column Layout */
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* INTERACTIVITY 1: Click-to-Reveal Cards */
+        .reveal-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .reveal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .reveal-card-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .reveal-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .reveal-card.open .reveal-icon {
+            transform: rotate(180deg);
+        }
+
+        .reveal-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .reveal-card.open .reveal-content {
+            max-height: 500px;
+            margin-top: 15px;
+        }
+
+        .reveal-content p {
+            font-size: 1.1em;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        /* INTERACTIVITY 2: Tab Navigation */
+        .tab-container {
+            margin-top: 30px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            padding: 12px 25px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            color: #4a5568;
+        }
+
+        .tab-button:hover {
+            background: #edf2f7;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            background: #f7fafc;
+            border-radius: 15px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* INTERACTIVITY 3: Progress Bars with Animation */
+        .progress-item {
+            margin: 20px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+            color: #4a5568;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 30px;
+            background: #e2e8f0;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0;
+            transition: width 2s ease;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .progress-bar-fill.animated {
+            animation: progressAnimation 2s ease forwards;
+        }
+
+        /* INTERACTIVITY 4: Modal Popup */
+        .info-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .info-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            color: #a0aec0;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #667eea;
+        }
+
+        /* INTERACTIVITY 5: Animated Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 30px;
+            background: #f7fafc;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-box:hover {
+            background: #edf2f7;
+            transform: scale(1.05);
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            color: #718096;
+        }
+
+        /* INTERACTIVITY 6: Hover Info Cards */
+        .hover-card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .hover-card {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hover-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: left 0.3s ease;
+            z-index: 0;
+        }
+
+        .hover-card:hover::before {
+            left: 0;
+        }
+
+        .hover-card-content {
+            position: relative;
+            z-index: 1;
+            transition: color 0.3s ease;
+        }
+
+        .hover-card:hover .hover-card-content {
+            color: white;
+        }
+
+        .hover-card:hover .hover-card-content h3,
+        .hover-card:hover .hover-card-content p {
+            color: white;
+        }
+
+        /* Content area */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Three columns layout */
+        .three-columns {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <div class="content-area">
+                <h1>KI im Marketing</h1>
+                <p class="subtitle">Die Revolution der Kundenansprache durch Künstliche Intelligenz</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Click-to-Reveal (Expandable Cards) -->
+        <div class="slide">
+            <h2>Was ist KI im Marketing?</h2>
+            <p>Klicke auf die Bereiche, um mehr zu erfahren:</p>
+            
+            <div class="reveal-card" onclick="toggleReveal(this)">
+                <div class="reveal-card-title">
+                    <span>🤖 Maschinelles Lernen</span>
+                    <span class="reveal-icon">▼</span>
+                </div>
+                <div class="reveal-content">
+                    <p>Algorithmen analysieren Kundenverhalten und lernen kontinuierlich aus Daten, um Vorhersagen zu treffen und Prozesse zu optimieren. Je mehr Daten verarbeitet werden, desto präziser werden die Ergebnisse.</p>
+                </div>
+            </div>
+
+            <div class="reveal-card" onclick="toggleReveal(this)">
+                <div class="reveal-card-title">
+                    <span>📊 Predictive Analytics</span>
+                    <span class="reveal-icon">▼</span>
+                </div>
+                <div class="reveal-content">
+                    <p>Durch die Analyse historischer Daten können zukünftige Trends vorhergesagt werden. Dies ermöglicht proaktive Marketingstrategien und bessere Ressourcenplanung.</p>
+                </div>
+            </div>
+
+            <div class="reveal-card" onclick="toggleReveal(this)">
+                <div class="reveal-card-title">
+                    <span>🎯 Personalisierung</span>
+                    <span class="reveal-icon">▼</span>
+                </div>
+                <div class="reveal-content">
+                    <p>Jeder Kunde erhält individuell zugeschnittene Inhalte, Angebote und Empfehlungen basierend auf seinem Verhalten, seinen Präferenzen und seiner Customer Journey.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Tab Navigation with Image (16:9 Hero) -->
+        <div class="slide">
+            <h2>Hauptanwendungsbereiche</h2>
+            <div class="two-columns">
+                <div>
+                    <div class="tab-container">
+                        <div class="tab-buttons">
+                            <button class="tab-button active" onclick="switchTab(0)">Content</button>
+                            <button class="tab-button" onclick="switchTab(1)">Analytics</button>
+                            <button class="tab-button" onclick="switchTab(2)">Automation</button>
+                        </div>
+                        
+                        <div class="tab-content active">
+                            <h3>Content Creation</h3>
+                            <p>KI erstellt automatisiert Texte, Bilder und Videos. Von Social Media Posts bis zu kompletten Blogartikeln – die Möglichkeiten sind vielfältig.</p>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <h3>Datenanalyse</h3>
+                            <p>Verarbeitung und Analyse riesiger Datenmengen in Echtzeit. Identifikation von Mustern und Trends, die dem menschlichen Auge verborgen bleiben.</p>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <h3>Marketing Automation</h3>
+                            <p>Automatisierung von E-Mail-Kampagnen, Social Media Posting und Lead Nurturing. Trigger-basierte Kommunikation zur richtigen Zeit.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-container">
+                    <img src="slide_01.jpg" alt="KI Anwendungen" class="slide-image image-hero">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Animated Progress Bars -->
+        <div class="slide">
+            <h2>Erfolgsfaktoren für KI-Implementierung</h2>
+            <p>Wie gut ist dein Unternehmen vorbereitet?</p>
+            
+            <div class="progress-item">
+                <div class="progress-label">
+                    <span>Datenqualität & -menge</span>
+                    <span class="progress-value">85%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" data-progress="85"></div>
+                </div>
+            </div>
+
+            <div class="progress-item">
+                <div class="progress-label">
+                    <span>Technische Infrastruktur</span>
+                    <span class="progress-value">70%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" data-progress="70"></div>
+                </div>
+            </div>
+
+            <div class="progress-item">
+                <div class="progress-label">
+                    <span>Team-Know-how</span>
+                    <span class="progress-value">60%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" data-progress="60"></div>
+                </div>
+            </div>
+
+            <div class="progress-item">
+                <div class="progress-label">
+                    <span>Change Management</span>
+                    <span class="progress-value">75%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" data-progress="75"></div>
+                </div>
+            </div>
+
+            <div class="progress-item">
+                <div class="progress-label">
+                    <span>Budget & Ressourcen</span>
+                    <span class="progress-value">80%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" data-progress="80"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Modal Popups with Square Images (1:1) -->
+        <div class="slide">
+            <h2>Use Cases im Detail</h2>
+            <p>Klicke auf einen Use Case für detaillierte Informationen:</p>
+            
+            <div class="three-columns">
+                <div style="text-align: center;">
+                    <img src="slide_02.jpg" alt="Chatbot" class="slide-image image-square">
+                    <button class="info-button" onclick="openModal('modal1')">Chatbots</button>
+                </div>
+                <div style="text-align: center;">
+                    <img src="slide_03.jpg" alt="Personalisierung" class="slide-image image-square">
+                    <button class="info-button" onclick="openModal('modal2')">Personalisierung</button>
+                </div>
+                <div style="text-align: center;">
+                    <img src="slide_04.jpg" alt="Predictive" class="slide-image image-square">
+                    <button class="info-button" onclick="openModal('modal3')">Predictive</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Animated Stats with Portrait Image (4:5) -->
+        <div class="slide">
+            <div class="two-columns">
+                <div>
+                    <h2>Success Story</h2>
+                    <p>Ein führendes E-Commerce-Unternehmen implementierte KI-gestützte Produktempfehlungen:</p>
+                    
+                    <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
+                        <div class="stat-box">
+                            <div class="stat-number" data-count="45">0</div>
+                            <div class="stat-label">% mehr Umsatz</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" data-count="60">0</div>
+                            <div class="stat-label">% höhere Conversion</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" data-count="35">0</div>
+                            <div class="stat-label">% mehr Kundenbindung</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" data-count="50">0</div>
+                            <div class="stat-label">% Zeitersparnis</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-container">
+                    <img src="slide_05.jpg" alt="Success Manager" class="slide-image image-portrait">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Hover Cards -->
+        <div class="slide">
+            <h2>Best Practices für die Implementierung</h2>
+            <p>Fahre mit der Maus über die Karten:</p>
+            
+            <div class="hover-card-grid">
+                <div class="hover-card">
+                    <div class="hover-card-content">
+                        <h3>🎯 Klein starten</h3>
+                        <p>Beginne mit einem Pilotprojekt und skaliere schrittweise. Lerne aus ersten Erfahrungen.</p>
+                    </div>
+                </div>
+                <div class="hover-card">
+                    <div class="hover-card-content">
+                        <h3>📊 Daten zuerst</h3>
+                        <p>Stelle sicher, dass ausreichend qualitative Daten vorhanden sind. Garbage in = Garbage out.</p>
+                    </div>
+                </div>
+                <div class="hover-card">
+                    <div class="hover-card-content">
+                        <h3>👥 Team einbinden</h3>
+                        <p>Schule dein Team und hole alle Stakeholder frühzeitig ins Boot.</p>
+                    </div>
+                </div>
+                <div class="hover-card">
+                    <div class="hover-card-content">
+                        <h3>🔄 Iterativ vorgehen</h3>
+                        <p>Kontinuierliche Optimierung basierend auf Ergebnissen und Feedback.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Final Call-to-Action with Hero Image -->
+        <div class="slide">
+            <div class="content-area">
+                <h2>Bereit für die KI-Revolution?</h2>
+                <div class="image-container">
+                    <img src="slide_06.jpg" alt="Zukunft KI" class="slide-image image-hero">
+                </div>
+                <p style="text-align: center; font-size: 1.4em;">Die Zukunft des Marketings ist intelligent. Unternehmen, die jetzt investieren, sichern sich einen entscheidenden Wettbewerbsvorteil.</p>
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="info-button" onclick="openModal('modal4')">Mehr erfahren</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <button class="nav-button prev" onclick="changeSlide(-1)">‹</button>
+        <button class="nav-button next" onclick="changeSlide(1)">›</button>
+
+        <!-- Slide Counter -->
+        <div class="slide-counter">
+            <span id="current-slide">1</span> / <span id="total-slides">8</span>
+        </div>
+    </div>
+
+    <!-- Modal Templates -->
+    <div id="modal1" class="modal" onclick="closeModal('modal1')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal('modal1')">×</button>
+            <h2>KI-Chatbots im Detail</h2>
+            <p>Intelligente Chatbots revolutionieren den Kundenservice:</p>
+            <ul style="margin: 20px 0; line-height: 2;">
+                <li>24/7 Verfügbarkeit ohne zusätzliche Personalkosten</li>
+                <li>Sofortige Antworten auf häufige Fragen</li>
+                <li>Nahtlose Übergabe an menschliche Agents bei komplexen Anfragen</li>
+                <li>Mehrsprachiger Support ohne Sprachbarrieren</li>
+                <li>Kontinuierliches Lernen aus Interaktionen</li>
+            </ul>
+            <p><strong>ROI:</strong> Durchschnittlich 30-40% Kostenreduktion im Customer Service</p>
+        </div>
+    </div>
+
+    <div id="modal2" class="modal" onclick="closeModal('modal2')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal('modal2')">×</button>
+            <h2>Hyper-Personalisierung</h2>
+            <p>KI ermöglicht individualisierte Kundenerlebnisse auf Skala:</p>
+            <ul style="margin: 20px 0; line-height: 2;">
+                <li>Dynamische Produktempfehlungen basierend auf Browsing-Verhalten</li>
+                <li>Personalisierte E-Mail-Kampagnen mit optimalen Versandzeiten</li>
+                <li>Individuelle Preisstrategien für verschiedene Kundensegmente</li>
+                <li>Angepasste Website-Inhalte für jeden Besucher</li>
+                <li>Predictive Personalization: Vorausschauende Angebote</li>
+            </ul>
+            <p><strong>Impact:</strong> 40-60% Steigerung der Conversion Rates möglich</p>
+        </div>
+    </div>
+
+    <div id="modal3" class="modal" onclick="closeModal('modal3')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal('modal3')">×</button>
+            <h2>Predictive Analytics</h2>
+            <p>Datenbasierte Vorhersagen für bessere Entscheidungen:</p>
+            <ul style="margin: 20px 0; line-height: 2;">
+                <li>Customer Lifetime Value Prediction</li>
+                <li>Churn Prediction: Identifikation abwanderungsgefährdeter Kunden</li>
+                <li>Demand Forecasting für optimale Lagerbestände</li>
+                <li>Next Best Action Recommendations</li>
+                <li>Trend-Vorhersagen für Produktentwicklung</li>
+            </ul>
+            <p><strong>Vorteil:</strong> Proaktive statt reaktive Strategien</p>
+        </div>
+    </div>
+
+    <div id="modal4" class="modal" onclick="closeModal('modal4')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal('modal4')">×</button>
+            <h2>Nächste Schritte</h2>
+            <p>So starten Sie Ihre KI-Journey:</p>
+            <ol style="margin: 20px 0; line-height: 2;">
+                <li><strong>Assessment:</strong> Analyse Ihrer aktuellen Marketing-Prozesse</li>
+                <li><strong>Strategie:</strong> Definition von Use Cases und Zielen</li>
+                <li><strong>Pilotphase:</strong> Test mit einem ausgewählten Projekt</li>
+                <li><strong>Skalierung:</strong> Ausweitung auf weitere Bereiche</li>
+                <li><strong>Optimierung:</strong> Kontinuierliche Verbesserung</li>
+            </ol>
+            <p><strong>Sprechen wir über Ihre individuellen Möglichkeiten!</strong></p>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+            
+            // Trigger animations on slide 4 (Progress Bars) and slide 6 (Stats)
+            if (currentSlide === 3) {
+                animateProgressBars();
+            }
+            if (currentSlide === 5) {
+                animateStats();
+            }
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === 'Escape') closeAllModals();
+        });
+
+        // Click-to-Reveal functionality
+        function toggleReveal(element) {
+            element.classList.toggle('open');
+        }
+
+        // Tab Navigation
+        function switchTab(index) {
+            const buttons = document.querySelectorAll('.tab-button');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            buttons.forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            
+            contents.forEach((content, i) => {
+                content.classList.toggle('active', i === index);
+            });
+        }
+
+        // Progress Bar Animation
+        function animateProgressBars() {
+            const progressBars = slides[3].querySelectorAll('.progress-bar-fill');
+            progressBars.forEach((bar, index) => {
+                setTimeout(() => {
+                    const progress = bar.getAttribute('data-progress');
+                    bar.style.width = progress + '%';
+                }, index * 200);
+            });
+        }
+
+        // Animated Stats Counter
+        function animateStats() {
+            const statNumbers = slides[5].querySelectorAll('.stat-number');
+            statNumbers.forEach(stat => {
+                const target = parseInt(stat.getAttribute('data-count'));
+                let current = 0;
+                const increment = target / 50;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        stat.textContent = target;
+                        clearInterval(timer);
+                    } else {
+                        stat.textContent = Math.floor(current);
+                    }
+                }, 30);
+            });
+        }
+
+        // Modal Functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function closeAllModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.remove('active');
+            });
+        }
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
